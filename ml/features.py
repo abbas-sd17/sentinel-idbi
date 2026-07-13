@@ -37,6 +37,11 @@ NUMERIC_COLS = [
     "txn_volume_trend",
     "cheque_returns_12m",
     "min_balance_breaches_12m",
+    # Public-domain / alternate data (problem statement's third mandated input
+    # class): electricity consumption + EPFO payroll trends and Udyam status.
+    "electricity_consumption_trend",
+    "epfo_headcount_trend",
+    "udyam_registered",
 ]
 
 DISTRESS_KEYWORDS = [
@@ -64,7 +69,21 @@ RAW_DEFAULTS: dict[str, object] = {
     "dpd_max_12m": 0, "emi_bounces_12m": 0, "avg_balance_trend": 0.0,
     "cc_utilization": 0.5, "gst_filing_delay_days": 0, "txn_volume_trend": 0.0,
     "cheque_returns_12m": 0, "min_balance_breaches_12m": 0, "rm_notes": "",
+    "electricity_consumption_trend": 0.0, "epfo_headcount_trend": 0.0,
+    "udyam_registered": 1,
 }
+
+
+def missing_raw_columns(df: pd.DataFrame) -> list[str]:
+    """Raw columns that will be backfilled with neutral defaults for at least
+    one row. Callers scoring external files should surface these as warnings:
+    neutral defaults mean 'no adverse event observed', so silently-imputed
+    behavioral fields bias scores toward Green."""
+    missing = []
+    for col in RAW_DEFAULTS:
+        if col not in df.columns or df[col].isna().any():
+            missing.append(col)
+    return missing
 
 _tfidf_vectorizer: TfidfVectorizer | None = None
 
@@ -80,36 +99,55 @@ def set_vectorizer(vectorizer: TfidfVectorizer | None) -> None:
     _tfidf_vectorizer = vectorizer
 
 
-def _nlp_distress_score(texts: pd.Series) -> np.ndarray:
-    """Compute NLP distress score from RM notes using keyword + TF-IDF fusion."""
+def _nlp_distress_score(texts: pd.Series, fit: bool) -> np.ndarray:
+    """Compute NLP distress score from RM notes using keyword + TF-IDF fusion.
+
+    The TF-IDF density is normalized with constants FROZEN AT FIT TIME and
+    persisted on the vectorizer artifact (density_min_/density_max_). This
+    keeps the score deterministic per account: a single /predict call and a
+    20k-row batch produce identical values (no batch-dependent min-max, no
+    train/serve skew).
+    """
     global _tfidf_vectorizer
     texts = texts.fillna("").astype(str)
     keyword_scores = texts.apply(
         lambda t: sum(1 for kw in DISTRESS_KEYWORDS if kw in t.lower()) / len(DISTRESS_KEYWORDS)
     ).values
 
-    if _tfidf_vectorizer is None:
+    if fit:
         _tfidf_vectorizer = TfidfVectorizer(max_features=50, stop_words="english")
         tfidf_matrix = _tfidf_vectorizer.fit_transform(texts)
+        tfidf_density = np.array(tfidf_matrix.mean(axis=1)).flatten()
+        # Freeze normalization constants from the training corpus.
+        _tfidf_vectorizer.density_min_ = float(tfidf_density.min())
+        _tfidf_vectorizer.density_max_ = float(tfidf_density.max())
     else:
+        if _tfidf_vectorizer is None:
+            raise RuntimeError(
+                "TF-IDF vectorizer artifact not loaded. Call set_vectorizer() "
+                "with the fitted artifact before scoring (never re-fit on "
+                "inference data)."
+            )
         tfidf_matrix = _tfidf_vectorizer.transform(texts)
+        tfidf_density = np.array(tfidf_matrix.mean(axis=1)).flatten()
 
-    tfidf_density = np.array(tfidf_matrix.mean(axis=1)).flatten()
-    tfidf_norm = (tfidf_density - tfidf_density.min()) / (
-        tfidf_density.max() - tfidf_density.min() + 1e-9
-    )
+    lo = getattr(_tfidf_vectorizer, "density_min_", 0.0)
+    hi = getattr(_tfidf_vectorizer, "density_max_", 1.0)
+    tfidf_norm = np.clip((tfidf_density - lo) / (hi - lo + 1e-9), 0.0, 1.0)
     return (0.6 * keyword_scores + 0.4 * tfidf_norm).clip(0, 1)
 
 
 def engineer_features(df: pd.DataFrame, fit: bool = True) -> pd.DataFrame:
-    """Build model-ready feature matrix from raw panel."""
-    global _tfidf_vectorizer
-    if not fit:
-        pass  # vectorizer already fitted
+    """Build model-ready feature matrix from raw panel.
 
+    fit=True fits the TF-IDF vectorizer on df (training only). fit=False
+    requires a fitted vectorizer (loaded via set_vectorizer) and never
+    re-fits — inference is strictly transform-only.
+    """
     out = df.copy()
     # Backfill any missing raw columns with neutral defaults so the pipeline is
     # robust to schema drift (missing/renamed sandbox columns, partial feeds).
+    # Callers scoring external data should report missing_raw_columns(df).
     for col, default in RAW_DEFAULTS.items():
         if col not in out.columns:
             out[col] = default
@@ -117,7 +155,7 @@ def engineer_features(df: pd.DataFrame, fit: bool = True) -> pd.DataFrame:
             out[col] = out[col].fillna(default)
 
     out["segment"] = out.apply(assign_segment, axis=1)
-    out["nlp_distress_score"] = _nlp_distress_score(out["rm_notes"])
+    out["nlp_distress_score"] = _nlp_distress_score(out["rm_notes"], fit=fit)
 
     # Derived ratios
     out["loan_to_turnover"] = (out["loan_amount"] / out["turnover"].clip(lower=1)).clip(0, 2)

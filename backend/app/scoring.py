@@ -16,14 +16,19 @@ import pandas as pd
 ML_ROOT = Path(__file__).resolve().parents[2] / "ml"
 sys.path.insert(0, str(ML_ROOT))
 
-from features import engineer_features, set_vectorizer  # noqa: E402
+from features import engineer_features, missing_raw_columns, set_vectorizer  # noqa: E402
 from segments import (  # noqa: E402
     assign_segment,
     get_ifrs9_stage,
     get_rag_bucket,
     get_rating_grade,
     get_recommended_action,
+    get_sma_category,
 )
+
+# Illustrative unsecured-exposure LGD for ECL = PD x LGD x EAD. Stage-2 work
+# replaces this with collateral-adjusted, product-level LGDs from bank data.
+LGD = 0.45
 
 MODEL_VERSION = "1.0.0-prototype"
 
@@ -93,16 +98,26 @@ class ScoringEngine:
         return self._portfolio_df is not None
 
     def _build_hazard_curve(self, pd_score: float) -> list[dict[str, float]]:
-        """Discrete-time hazard curve for 12-month horizon."""
+        """Discrete-time survival decomposition of the 12-month PD.
+
+        Constant conditional monthly hazard h = 1 - (1 - PD)^(1/12) compounded
+        multiplicatively, so the cumulative PD at month 12 equals the model's
+        headline PD exactly. 'hazard' is the marginal (unconditional) default
+        probability in that month: survival_{m-1} * h.
+        """
         curve = []
-        remaining = 1.0
+        survival = 1.0
         monthly_hazard = 1 - (1 - pd_score) ** (1 / 12)
         for month in range(1, 13):
-            hazard = monthly_hazard * (1 + 0.02 * (month - 6) / 6)
-            hazard = min(hazard, remaining)
-            curve.append({"month": month, "hazard": round(hazard, 4), "cumulative_pd": round(1 - remaining + hazard, 4)})
-            remaining -= hazard
-            remaining = max(remaining, 0)
+            marginal = survival * monthly_hazard
+            survival *= 1 - monthly_hazard
+            curve.append(
+                {
+                    "month": month,
+                    "hazard": round(marginal, 4),
+                    "cumulative_pd": round(1 - survival, 4),
+                }
+            )
         return curve
 
     def score_account(self, account: dict[str, Any]) -> dict[str, Any]:
@@ -128,7 +143,11 @@ class ScoringEngine:
         rag = get_rag_bucket(pd_score, loan_type)
         segment = assign_segment(account)
         rating = get_rating_grade(pd_score)
-        ifrs9 = get_ifrs9_stage(rag)
+        dpd = account.get("dpd_max_12m", 0) or 0
+        sma = get_sma_category(dpd)
+        # Staging is evidence-gated: Stage 3 requires 90+ DPD objective
+        # evidence; a high model PD on a performing account -> Stage 2 (SICR).
+        ifrs9 = get_ifrs9_stage(rag, dpd)
 
         return {
             "account_id": str(df["account_id"].iloc[0]),
@@ -138,6 +157,8 @@ class ScoringEngine:
             "segment": segment,
             "rating_grade": rating["grade"],
             "rating_band": rating["band"],
+            "sma_category": sma["sma"],
+            "sma_definition": sma["definition"],
             "ifrs9_stage": ifrs9["stage"],
             "ifrs9_basis": ifrs9["basis"],
             "recommended_action": get_recommended_action(rag),
@@ -159,14 +180,17 @@ class ScoringEngine:
 
         rag_breakdown = df["rag"].value_counts().to_dict()
 
-        # IFRS-9 staging distribution + provisioning estimate.
-        stage_map = {"green": "Stage 1", "amber": "Stage 2", "red": "Stage 3"}
-        df["ifrs9_stage"] = df["rag"].map(stage_map)
+        # RBI SMA classification (live IRAC regime) from trailing DPD.
+        df["sma_category"] = df["dpd_max_12m"].map(lambda d: get_sma_category(d)["sma"])
+        sma_breakdown = df["sma_category"].value_counts().to_dict()
+
+        # IFRS-9 staging via the SAME evidence-gated function used per-account
+        # (single source of truth in segments.py - no duplicated constants).
+        df["ifrs9_stage"] = [
+            get_ifrs9_stage(r, d)["stage"]
+            for r, d in zip(df["rag"], df["dpd_max_12m"])
+        ]
         stage_breakdown = df["ifrs9_stage"].value_counts().to_dict()
-        coverage = {"Stage 1": 0.01, "Stage 2": 0.08, "Stage 3": 0.45}
-        ecl_provision = float(
-            sum(df[df["ifrs9_stage"] == s]["loan_amount"].sum() * c for s, c in coverage.items())
-        )
 
         total_exposure = float(df["loan_amount"].sum())
         exposure_at_risk = float(df[df["rag"] == "red"]["loan_amount"].sum())
@@ -174,8 +198,11 @@ class ScoringEngine:
             str(k): float(v)
             for k, v in df.groupby("rag")["loan_amount"].sum().to_dict().items()
         }
-        lgd = 0.45
-        expected_loss = float((df["predicted_pd"] * df["loan_amount"] * lgd).sum())
+        # ECL = PD x LGD x EAD (illustrative flat LGD, disclosed). The same
+        # figure is reported as the provision estimate - no invented
+        # per-stage coverage ratios.
+        expected_loss = float((df["predicted_pd"] * df["loan_amount"] * LGD).sum())
+        ecl_provision = expected_loss
 
         sector_risk = (
             df.groupby("sector")
@@ -212,8 +239,14 @@ class ScoringEngine:
             "exposure_at_risk": round(exposure_at_risk, 2),
             "exposure_by_rag": {k: round(v, 2) for k, v in exposure_by_rag.items()},
             "expected_loss": round(expected_loss, 2),
+            "sma_breakdown": {str(k): int(v) for k, v in sma_breakdown.items()},
             "ifrs9_stage_breakdown": {str(k): int(v) for k, v in stage_breakdown.items()},
             "ecl_provision": round(ecl_provision, 2),
+            "ecl_method": (
+                f"PD x LGD x EAD with illustrative LGD={LGD} (flat); staging "
+                "evidence-gated (Stage 3 requires 90+ DPD). Stage-2 work: "
+                "collateral-adjusted product-level LGDs from bank data."
+            ),
             "sector_risk": sector_risk,
             "high_risk_accounts": high_risk,
             "model_metrics": model_metrics,
@@ -234,7 +267,7 @@ class ScoringEngine:
         current["dpd_max_12m"] = (current["dpd_max_12m"] + rng.normal(6, 4, n)).clip(0, 90)
         current["cc_utilization"] = (current["cc_utilization"] + rng.normal(0.05, 0.03, n)).clip(0.05, 0.99)
         current["gst_filing_delay_days"] = (current["gst_filing_delay_days"] + rng.normal(4, 3, n)).clip(0, 90)
-        current["bureau_score"] = (current["bureau_score"] - rng.normal(15, 8, n)).clip(300, 850)
+        current["bureau_score"] = (current["bureau_score"] - rng.normal(15, 8, n)).clip(300, 900)
 
         cur_features = engineer_features(current, fit=False)
         feature_cols = [c for c in self.feature_columns if c in cur_features.columns]
@@ -249,6 +282,13 @@ class ScoringEngine:
         report = drift_report(reference, current, monitored)
         report["reference_avg_pd"] = round(float(reference["predicted_pd"].mean()), 4)
         report["current_avg_pd"] = round(float(current["predicted_pd"].mean()), 4)
+        report["simulated"] = True
+        report["note"] = (
+            "DEMO: the 'current' population is a synthetically stressed clone "
+            "of the reference portfolio to demonstrate the PSI methodology. "
+            "In production this endpoint compares the live scoring population "
+            "against the training reference."
+        )
         return report
 
     def get_account_by_id(self, account_id: str) -> dict[str, Any] | None:

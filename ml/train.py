@@ -32,8 +32,15 @@ def train_model(
     X = features_df[feature_cols].values.astype(np.float32)
     y = features_df["default_12m"].values
 
-    X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
+    # Three-way split: train / validation / test. The operating threshold is
+    # selected on the VALIDATION split only - the held-out test set is never
+    # used for any selection decision (threshold, features, hyperparameters),
+    # so reported test metrics carry no selection optimism.
+    X_trainval, X_test, y_trainval, y_test, idx_trainval, idx_test = train_test_split(
         X, y, np.arange(len(y)), test_size=0.2, random_state=42, stratify=y
+    )
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_trainval, y_trainval, test_size=0.2, random_state=43, stratify=y_trainval
     )
 
     # Handle class imbalance INSIDE the estimator (class_weight="balanced")
@@ -56,6 +63,15 @@ def train_model(
     calibrated = CalibratedClassifierCV(base_clf, method="isotonic", cv=5)
     calibrated.fit(X_train, y_train)
 
+    # F2-optimal operating threshold (recall-weighted) selected on VALIDATION.
+    from sklearn.metrics import precision_recall_curve
+
+    val_probs = calibrated.predict_proba(X_val)[:, 1]
+    precisions, recalls, thresholds = precision_recall_curve(y_val, val_probs)
+    f2 = 5 * precisions * recalls / (4 * precisions + recalls + 1e-9)
+    best = int(np.argmax(f2))
+    operating_threshold = float(thresholds[min(best, len(thresholds) - 1)])
+
     # Persist artifacts
     joblib.dump(calibrated, model_path / "model.joblib")
     joblib.dump(feature_cols, model_path / "feature_columns.joblib")
@@ -75,16 +91,26 @@ def train_model(
 
     metadata = {
         "n_train": int(len(y_train)),
+        "n_val": int(len(y_val)),
         "n_test": int(len(y_test)),
         "default_rate": float(y.mean()),
         "scale_pos_weight": float(scale_pos_weight),
         "n_features": len(feature_cols),
+        "operating_threshold": round(operating_threshold, 4),
+        "threshold_selection": (
+            "F2-optimal threshold selected on the validation split (16% of "
+            "data); the held-out test set was never used for any selection."
+        ),
         "feature_columns": feature_cols,
     }
     with open(model_path / "metadata.json", "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"Model trained | train={len(y_train)} test={len(y_test)} features={len(feature_cols)}")
+    print(
+        f"Model trained | train={len(y_train)} val={len(y_val)} "
+        f"test={len(y_test)} features={len(feature_cols)} "
+        f"threshold={operating_threshold:.4f}"
+    )
     return metadata
 
 

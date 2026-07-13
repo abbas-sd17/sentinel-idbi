@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { uploadBatch, formatINR, type PredictionResult } from "@/lib/api";
+import { uploadBatch, formatINR, type PredictionResult, type SkippedRow } from "@/lib/api";
 import { RagBadge, Card } from "@/components/ui";
 
 const SAMPLES = [
@@ -21,6 +21,8 @@ function topReason(r: PredictionResult): string {
 
 export default function UploadPage() {
   const [results, setResults] = useState<PredictionResult[]>([]);
+  const [skipped, setSkipped] = useState<SkippedRow[]>([]);
+  const [warning, setWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
@@ -34,9 +36,13 @@ export default function UploadPage() {
     try {
       const res = await uploadBatch(file);
       setResults(res.predictions);
+      setSkipped(res.skipped || []);
+      setWarning(res.warning);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setResults([]);
+      setSkipped([]);
+      setWarning(null);
     } finally {
       setLoading(false);
     }
@@ -52,6 +58,8 @@ export default function UploadPage() {
       const f = new File([blob], file, { type: "text/csv" });
       const res = await uploadBatch(f);
       setResults(res.predictions);
+      setSkipped(res.skipped || []);
+      setWarning(res.warning);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load sample");
     } finally {
@@ -132,6 +140,32 @@ export default function UploadPage() {
 
       {error && (
         <div className="card p-4 border-red-200 bg-red-50 text-sm text-red-700">{error}</div>
+      )}
+
+      {warning && (
+        <div className="card p-4 border-amber-200 bg-amber-50 text-sm text-amber-800 flex items-start gap-2">
+          <span className="text-amber-500">&#9888;</span>
+          <span>{warning}</span>
+        </div>
+      )}
+
+      {skipped.length > 0 && (
+        <details className="card border-red-200 overflow-hidden">
+          <summary className="cursor-pointer select-none p-4 text-sm font-medium text-red-700 hover:bg-red-50/60 transition-colors">
+            {skipped.length} row{skipped.length === 1 ? "" : "s"} skipped (validation failed)
+          </summary>
+          <div className="px-4 pb-4 space-y-2">
+            {skipped.map((s) => (
+              <div key={s.row} className="rounded-xl border border-red-100 bg-red-50/50 px-3 py-2 text-xs">
+                <span className="font-mono font-semibold text-red-700">Row {s.row}</span>
+                {s.account_id && <span className="font-mono text-slate-500 ml-2">{s.account_id}</span>}
+                <ul className="mt-1 list-disc list-inside text-slate-600">
+                  {s.errors.map((e, i) => <li key={i}>{e}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
 
       {/* Results */}

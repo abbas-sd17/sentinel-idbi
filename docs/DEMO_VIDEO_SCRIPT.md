@@ -11,65 +11,65 @@
 ### [0:00 - 0:20] Problem Statement
 **Screen**: Title slide or static graphic
 **Narration**:
-> "IDBI Bank's current MSME default prediction model achieves only 16 to 22 percent accuracy and detects stress just 3 months before default — too late to act. We built Sentinel: an AI-powered early-warning system that predicts defaults 12 months in advance with honest, bank-grade discrimination — and, crucially, without the inflated accuracy that would raise a red flag."
+> "IDBI Bank's current MSME default prediction model achieves only 16 to 22 percent accuracy and detects stress just 3 months before default — too late to act. We built Sentinel: an AI early-warning system that predicts defaults 12 months in advance and delivers the intent behind the bank's 90 percent target — more than 95 of every 100 accounts it clears stay good over the next year."
 
 ### [0:20 - 0:40] Portfolio Dashboard
 **Screen**: Open deployed app → Portfolio Dashboard (`/`)
 **Actions**:
-- Show KPI cards (Total Exposure ~₹65,500 Cr, Exposure at Risk ~₹3,000 Cr, IFRS-9 ECL Provision ~₹2,560 Cr, Avg PD 9.4%) and the held-out AUC 0.79 / KS 0.46 / Gini 0.57 header
-- Point to RAG (Red/Amber/Green) distribution donut (~79% Green / 15% Amber / 6% Red — a realistic portfolio)
+- Show KPI cards (total exposure, exposure at risk, ECL provision, average PD) and the held-out AUC 0.79 / KS 0.43 / Gini 0.57 header
+- Point to the RAG (Red/Amber/Green) distribution donut and the RBI SMA breakdown (Standard / SMA-0/1/2)
 - Scroll sector risk chart (textiles/agri hottest)
 - Use the search box and RAG filter, sort the table by Exposure
-- Highlight model benchmarks panel
 
 **Narration**:
-> "This is the loan officer's portfolio view. We manage risk in rupees, not just counts: about ₹65,500 crore of exposure across 20,000 MSME accounts, of which roughly ₹3,000 crore sits in the red bucket, with an IFRS-9 expected-credit-loss provision near ₹2,560 crore. Every account is scored with a calibrated probability of default. The RAG — Red, Amber, Green — distribution mirrors a real portfolio: most accounts healthy, a small stressed bucket needing immediate attention."
+> "This is the loan officer's portfolio view: roughly 65,000 crore rupees of exposure across 20,000 MSME accounts, each scored with a calibrated probability of default. Risk is managed in rupees — exposure at risk and an expected-credit-loss provision computed as PD times LGD times EAD. Alongside the Red-Amber-Green buckets, every account carries its RBI SMA category — the live IRAC early-stress view banks actually run on today."
 
-### [0:40 - 1:30] Account Detail Deep-Dive
+### [0:40 - 1:35] Account Detail Deep-Dive + Officer Decision
 **Screen**: Click a RED or AMBER account → Account Detail page
 **Actions**:
 - Show PD percentage gauge
-- Show RAG badge, rating grade (G1-G10) + IFRS-9 stage chips, recommended action
+- Show RAG badge, rating grade (G1-G10), SMA category chip, and the evidence-gated IFRS-9 stage chip
 - Scroll through 12-month hazard curve
-- Highlight SHAP reason codes with taxonomy codes (BEH-01, CMP-01, ...)
-- Point to "AI advisory only" disclaimer
+- Highlight SHAP reason codes with taxonomy codes — include a public-domain code (PUB-01 electricity trend or PUB-02 EPFO headcount) alongside BEH/CMP codes
+- Use the decision panel: select "Escalate", type a short note, enter officer name, submit; show the decision appearing in the account's decision history
 
 **Narration**:
-> "Drilling into a high-risk account, the gauge shows its 12-month probability of default, alongside an internal rating grade and IFRS-9 stage. The hazard curve shows when stress is expected to materialize. SHAP reason codes — each tagged with a standardized code like BEH-01 or CMP-01 — explain WHY: delayed GST filings, high utilization, days past due. The loan officer reviews this advisory and decides. Human stays in the loop per RBI AI norms."
+> "Drilling into a high-risk account: the gauge shows its 12-month probability of default, with an internal rating grade, its SMA category, and an IFRS-9 stage that is evidence-gated — a high model score alone can flag significant risk increase, Stage 2, but never marks a performing account credit-impaired. SHAP reason codes explain why: delayed GST filings, days past due — and public-domain signals like a falling electricity consumption trend and shrinking EPFO payroll headcount. Then the human takes over: the officer acknowledges, overrides, or escalates, with a note — and that decision is recorded to the same audit trail as the score. Human-in-the-loop, implemented, not just disclaimed."
 
-### [1:30 - 2:00] Batch Upload
+### [1:35 - 2:00] Batch Upload
 **Screen**: Navigate to `/upload`
 **Actions**:
 - Click "Score now" on the **High-Risk Watchlist** sample (all red) — instant results
-- Then try the **Mixed Portfolio** sample to show a green/amber/red spread
-- Point to the risk summary tiles (accounts scored, red count, avg PD)
+- Then the **Mixed Portfolio** sample to show a green/amber/red spread
+- Point to the risk summary tiles, and to the warning banner listing any columns backfilled with neutral defaults
 
 **Narration**:
-> "For bulk operations, loan officers upload a CSV and score hundreds of accounts instantly. We ship three ready-to-use demo datasets — low-risk, mixed, and a high-risk watchlist. Each account gets a calibrated PD, a RAG bucket, and its top reason code."
+> "For bulk operations, officers upload a CSV and score hundreds of accounts instantly. Every row passes the same validation as a single prediction — invalid rows are skipped and reported, and if any column is missing, the system says so explicitly rather than silently assuming clean behavior."
 
-### [2:00 - 2:20] Benchmarking
-**Screen**: Back to dashboard benchmarks OR show `ml/reports/` charts
+### [2:00 - 2:25] Benchmarking
+**Screen**: Dashboard benchmarks OR `ml/reports/` charts
 **Actions**:
-- Point to AUC-ROC 0.79, KS 0.46, Gini 0.57, Brier 0.073 — all on a held-out test set
-- Briefly show ROC, KS, and calibration curve images; mention 6.4-month average lead time
+- Point to NPV 95.6%, green-clearance reliability 94.7%, Red-tier precision 40.7%
+- Show AUC-ROC 0.786, KS 0.43, Gini 0.57, Brier 0.075 — all on a held-out test set
+- Briefly show ROC, KS, and calibration curve images
 
 **Narration**:
-> "We deliberately don't chase a 90-plus number — in credit risk that almost always means leakage, the exact red flag raised in the AMA. On a held-out test set our model scores AUC 0.79, KS 0.46, Gini 0.57 — squarely where real MSME models live — and it holds across every loan type. It flags 58 percent of eventual defaulters an average 6.4 months before default. A Brier score of 0.07 confirms the probabilities are genuinely well-calibrated. This is the honest, defensible result a bank validator will trust."
+> "How does this deliver the bank's 90-percent intent? Ninety-five point six percent of accounts the model clears stay good over the next 12 months, green-tier clearance reliability is 94.7 percent at the production cuts, and precision in the Red tier is 40.7 percent — roughly twice the incumbent model's 16-to-22-percent accuracy. Ranking power is an honest AUC 0.786 and KS 0.43 on a held-out test set — the band real bank-grade MSME models achieve — and it holds across every loan type. It flags 56.9 percent of eventual defaulters on the watchlist, with an illustrative average lead of 6.4 months. These synthetic-holdout numbers validate the pipeline and will be revalidated on IDBI sandbox data in Stage 2."
 
-### [2:20 - 2:45] Architecture & Compliance
+### [2:25 - 2:50] Architecture & Compliance
 **Screen**: GitHub repo README or architecture diagram
 **Actions**:
 - Show repo structure (ml/, backend/, frontend/, docs/)
 - Point to Docker + AWS mapping in ARCHITECTURE.md
-- Mention compliance docs
+- Mention COMPLIANCE.md: IRAC/SMA/EWS alignment, DPDP, FREE-AI direction
 
 **Narration**:
-> "Sentinel is production-ready and 100% open source: FastAPI backend on Hugging Face Spaces, Next.js dashboard on Netlify, Dockerized and AWS-portable. All data is synthetic and DPDP-safe, with a full Model Card, PSI drift monitoring, and an audit trail. Ready for IDBI sandbox migration in Stage 2 — map columns, retrain, revalidate."
+> "Sentinel is production-ready and 100 percent open source: FastAPI backend, Next.js dashboard, Dockerized and AWS-portable. It is built for the live RBI regime — IRAC, SMA early-stress buckets, and the Early Warning Signals framework — with IFRS-9 staging ready for when Ind-AS applies. All data is synthetic and DPDP-safe, with a full Model Card, drift monitoring, and an end-to-end audit trail covering both model scores and officer decisions. Stage 2: map the sandbox columns, plug in the public-domain feeds, retrain, revalidate."
 
-### [2:45 - 3:00] Close
+### [2:50 - 3:00] Close
 **Screen**: Dashboard with logo
 **Narration**:
-> "Sentinel — 12-month early warning, explainable AI, built for IDBI Bank. Thank you."
+> "Sentinel — 12-month early warning, explainable AI, human decisions on the record. Built for IDBI Bank. Thank you."
 
 ---
 

@@ -19,6 +19,10 @@ export interface PredictionResult {
   rating_band: string;
   ifrs9_stage: string;
   ifrs9_basis: string;
+  sma_category: string;
+  sma_definition: string;
+  explanation_method: "shap" | "perturbation_proxy";
+  imputed_fields: string[];
   recommended_action: string;
   reason_codes: ReasonCode[];
   hazard_curve: { month: number; hazard: number; cumulative_pd: number }[];
@@ -37,6 +41,8 @@ export interface PortfolioSummary {
   expected_loss: number;
   ifrs9_stage_breakdown: Record<string, number>;
   ecl_provision: number;
+  sma_breakdown: Record<string, number>;
+  ecl_method: string;
   sector_risk: { sector: string; avg_pd: number; count: number; exposure: number }[];
   high_risk_accounts: {
     account_id: string;
@@ -47,6 +53,30 @@ export interface PortfolioSummary {
     default_12m: number;
   }[];
   model_metrics: Record<string, number | string>;
+}
+
+export interface SkippedRow {
+  row: number;
+  account_id: string | null;
+  errors: string[];
+}
+
+export interface BatchResult {
+  predictions: PredictionResult[];
+  total: number;
+  skipped: SkippedRow[];
+  imputed_columns: string[];
+  warning: string | null;
+}
+
+export interface DecisionRecord {
+  account_id: string;
+  decision: "acknowledge" | "override" | "escalate";
+  note: string;
+  officer: string;
+  model_pd: number;
+  model_rag: string;
+  timestamp: string;
 }
 
 export interface AccountRow {
@@ -111,12 +141,29 @@ export function getAccountDetail(accountId: string): Promise<PredictionResult> {
   return fetchApi<PredictionResult>(`/explain/${accountId}`);
 }
 
-export async function uploadBatch(file: File): Promise<{ predictions: PredictionResult[]; total: number }> {
+export async function uploadBatch(file: File): Promise<BatchResult> {
   const form = new FormData();
   form.append("file", file);
   const res = await fetch(`${API_URL}/predict/batch`, { method: "POST", body: form });
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
   return res.json();
+}
+
+export function postDecision(payload: {
+  account_id: string;
+  decision: "acknowledge" | "override" | "escalate";
+  note: string;
+  officer: string;
+}): Promise<DecisionRecord> {
+  return fetchApi<DecisionRecord>("/decisions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function getDecisions(accountId: string): Promise<DecisionRecord[]> {
+  return fetchApi<DecisionRecord[]>(`/decisions/${accountId}`);
 }
 
 export function getHealth(): Promise<{ status: string; model_loaded: boolean }> {

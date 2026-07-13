@@ -11,8 +11,8 @@ The panel is generated from a latent risk process calibrated to real MSME credit
 - **Segment attributes drive risk.** Latent default risk carries small, realistic loadings by **borrower profile** (NTC > NTB > ETB — thin-file borrowers default more), **enterprise size** (micro > small > medium), and **sector** (textiles/agri-processing run hotter than manufacturing). These are not decorative columns; they materially move the default rate.
 - **Udyam-consistent scale.** `turnover` is drawn per enterprise size to respect MSMED Act thresholds (micro <= Rs 5 Cr, small <= Rs 50 Cr, medium <= Rs 250 Cr). `loan_amount` is 6-22% of turnover, capped at Rs 15 Cr, so the book reads as a genuine MSME portfolio (~Rs 65,000 Cr, ~Rs 3.3 Cr average ticket).
 - **Product-aware collateral.** `collateral_coverage` base varies by product: LAP (property) highest, then equipment finance, term loan, then cash credit (current-asset / drawing-power); some loans effectively collateral-free (CGTMSE-style).
-- **Observed features are noisy proxies** of latent risk, and the default event includes an **unobserved-heterogeneity shock** (fraud, promoter issues, sudden order loss) that no feature captures — capping achievable discrimination at a realistic, non-leaky level (held-out AUC ~0.79 / KS ~0.46).
-- **Trailing DPD 0-90** represents standard / SMA-0/1/2 accounts at the observation point; the label predicts slippage to NPA (90+ DPD) over the next 12 months.
+- **Observed features are noisy proxies** of latent risk, and the default event includes an **unobserved-heterogeneity shock** (fraud, promoter issues, sudden order loss) that no feature captures — capping achievable discrimination at a realistic, non-leaky level (held-out AUC ~0.79 / KS ~0.43).
+- **Trailing DPD 0-89** represents the performing book (standard / SMA-0/1/2 accounts) at the observation point; the label predicts slippage to NPA (90+ DPD) over the next 12 months. Because DPD is capped at 89, no scored account carries 90+ DPD objective evidence — the IFRS-9 Stage 3 count on the demo book is 0 by construction.
 
 ## Label
 
@@ -35,7 +35,7 @@ The panel is generated from a latent risk process calibrated to real MSME credit
 | `interest_rate` | float | Annual interest rate (%), risk-based |
 | `vintage_months` | int | Months since loan disbursement |
 | `collateral_coverage` | float | Collateral value / loan amount ratio (product-aware) |
-| `bureau_score` | float | Credit bureau score (300-850) |
+| `bureau_score` | float | Credit bureau score on the CIBIL-style commercial 300-900 scale |
 | `turnover` | float | Annual business turnover (INR), Udyam-consistent by size |
 | `gst_sales` | float | GST-reported sales (INR), <= turnover |
 | `foir` | float | Fixed Obligation to Income Ratio |
@@ -44,7 +44,7 @@ The panel is generated from a latent risk process calibrated to real MSME credit
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `dpd_max_12m` | int | Maximum days past due in last 12 months (0-90 = SMA buckets) |
+| `dpd_max_12m` | int | Maximum days past due in last 12 months (0-89; drives the trailing-12m SMA proxy category) |
 | `emi_bounces_12m` | int | EMI bounce count |
 | `avg_balance_trend` | float | Month-over-month average balance trend |
 | `cc_utilization` | float | Cash credit utilization ratio (0-1) |
@@ -53,12 +53,22 @@ The panel is generated from a latent risk process calibrated to real MSME credit
 | `cheque_returns_12m` | int | Cheque return count |
 | `min_balance_breaches_12m` | int | Minimum balance breach count |
 
+## Public-Domain Features (problem statement's third mandated input class)
+
+Synthetic proxies today; sourced from public-domain feeds in Stage 2.
+
+| Field | Type | Reason code | Description |
+|-------|------|-------------|-------------|
+| `electricity_consumption_trend` | float | PUB-01 | State discom electricity consumption trend (production proxy; falling consumption = activity stress) |
+| `epfo_headcount_trend` | float | PUB-02 | EPFO payroll headcount trend (employment stress signal) |
+| `udyam_registered` | int (0/1) | PUB-03 | Udyam registration status (formalization signal) |
+
 ## Unstructured Features
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `rm_notes` | string | Relationship manager visit notes (free text) |
-| `nlp_distress_score` | float | Derived NLP distress score (0-1), TF-IDF + keyword fusion |
+| `nlp_distress_score` | float | Derived NLP distress score (0-1), TF-IDF + keyword fusion. Normalization constants are frozen at fit time and persisted on the vectorizer artifact, so single-account and batch scoring produce identical scores (train/serve consistency). Simplified proof-of-concept on synthetic notes |
 
 ## Derived Features
 
@@ -78,7 +88,7 @@ The panel is generated from a latent risk process calibrated to real MSME credit
 
 ## Schema robustness
 
-At inference, missing raw columns are backfilled with neutral defaults, extra columns are ignored, and unseen category values become all-zero one-hots. The pipeline will not crash on schema drift — but renamed sandbox columns should be explicitly mapped (below) and the model retrained for trustworthy PDs.
+At inference, missing raw columns are backfilled with neutral defaults, extra columns are ignored, and unseen category values become all-zero one-hots. The pipeline will not crash on schema drift — but renamed sandbox columns should be explicitly mapped (below) and the model retrained for trustworthy PDs. Batch scoring (`/predict/batch`) validates every row through the same Pydantic schema as `/predict`, skips and reports invalid rows, and returns an explicit warning listing every column that was backfilled with neutral defaults — so "no adverse data provided" is never confused with "no adverse events observed".
 
 ## Stage-2 Sandbox Mapping
 
@@ -86,7 +96,9 @@ At inference, missing raw columns are backfilled with neutral defaults, extra co
 |-----------------|----------------|
 | Structured fields | Core banking system (CBS) loan master |
 | Behavioral fields | Transaction database / sandbox APIs |
-| Bureau score | Credit bureau API (CIBIL etc.) |
+| Bureau score | Credit bureau API (CIBIL etc., commercial 300-900 scale) |
 | GST data | GSTN integration |
 | RM notes | CRM / document management system |
-| EPFO, electricity | Public domain / alternate data APIs |
+| `electricity_consumption_trend` | State discom consumption feeds |
+| `epfo_headcount_trend` | EPFO API (payroll/headcount) |
+| `udyam_registered` | Udyam registration portal |

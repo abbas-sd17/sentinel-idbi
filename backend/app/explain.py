@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+logger = logging.getLogger("sentinel.explain")
 
 ML_ROOT = Path(__file__).resolve().parents[2] / "ml"
 sys.path.insert(0, str(ML_ROOT))
@@ -54,8 +57,15 @@ def explain_prediction(
     engine: ScoringEngine,
     X: np.ndarray,
     top_n: int = 5,
-) -> list[dict[str, Any]]:
-    """Generate reason codes for a prediction (true SHAP, proxy fallback)."""
+) -> tuple[list[dict[str, Any]], str]:
+    """Generate reason codes for a prediction.
+
+    Returns (reason_codes, method) where method is "shap" or
+    "perturbation_proxy". The method is surfaced in the API response and the
+    audit trail so a SHAP breakage can never silently change what the reason
+    codes mean (RBI model-governance expectation: the explanation method used
+    for each decision is known and recorded).
+    """
     try:
         explainer = engine.get_explainer()  # built once, reused across requests
         shap_values = explainer(X)
@@ -66,6 +76,10 @@ def explain_prediction(
         feature_names = engine.feature_columns
         impacts = list(zip(feature_names[: len(values)], values))
         impacts.sort(key=lambda x: abs(x[1]), reverse=True)
-        return [_decorate(feat, impact) for feat, impact in impacts[:top_n]]
+        return [_decorate(feat, impact) for feat, impact in impacts[:top_n]], "shap"
     except Exception:
-        return _permutation_importance_proxy(engine, X, top_n)
+        logger.warning(
+            "SHAP explanation failed; falling back to perturbation proxy",
+            exc_info=True,
+        )
+        return _permutation_importance_proxy(engine, X, top_n), "perturbation_proxy"

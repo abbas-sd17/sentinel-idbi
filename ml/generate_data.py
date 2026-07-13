@@ -106,11 +106,15 @@ def _generate_accounts(rng: np.random.Generator, n: int) -> pd.DataFrame:
     vintage_months = rng.integers(6, 120, n)
     base_cov = np.array([LOANTYPE_COLLATERAL[lt] for lt in loan_type])
     collateral_coverage = (base_cov - latent * 0.4 + rng.normal(0, 0.25, n)).clip(0.0, 2.5)
-    bureau_score = (720 - latent * 170 + rng.normal(0, 28, n)).clip(300, 850)
+    # CIBIL-style commercial bureau scale (300-900).
+    bureau_score = (720 - latent * 170 + rng.normal(0, 28, n)).clip(300, 900)
     foir = (0.30 + latent * 0.26 + rng.normal(0, 0.06, n)).clip(0.1, 0.85)
 
     # Behavioral features: correlated with latent risk but with real dispersion.
-    dpd_max_12m = (latent * 65 + rng.exponential(6, n)).clip(0, 90).astype(int)
+    # DPD capped at 89: the scored population is the PERFORMING book
+    # (Standard / SMA-0/1/2 under RBI IRAC norms); 90+ DPD accounts are
+    # already NPA and belong in collections, not an early-warning model.
+    dpd_max_12m = (latent * 65 + rng.exponential(6, n)).clip(0, 89).astype(int)
     emi_bounces_12m = rng.poisson(np.clip(latent * 4.0 + 0.3, 0, None)).clip(0, 12).astype(int)
     avg_balance_trend = (0.04 - latent * 0.11 + rng.normal(0, 0.045, n)).clip(-0.3, 0.2)
     cc_utilization = (0.45 + latent * 0.35 + rng.normal(0, 0.09, n)).clip(0.05, 0.99)
@@ -118,6 +122,15 @@ def _generate_accounts(rng: np.random.Generator, n: int) -> pd.DataFrame:
     txn_volume_trend = (0.02 - latent * 0.08 + rng.normal(0, 0.07, n)).clip(-0.35, 0.25)
     cheque_returns_12m = rng.poisson(np.clip(latent * 2.0 + 0.15, 0, None)).clip(0, 10).astype(int)
     min_balance_breaches_12m = rng.poisson(np.clip(latent * 4.0 + 0.4, 0, None)).clip(0, 15).astype(int)
+
+    # Public-domain / alternate data (the problem statement's third mandated
+    # input class, alongside borrower behavior and bank-internal data):
+    # electricity consumption trend (state discom data - production proxy),
+    # EPFO payroll headcount trend (employment stress), Udyam registration
+    # status (formalization signal). Noisy proxies like all other features.
+    electricity_consumption_trend = (0.03 - latent * 0.10 + rng.normal(0, 0.06, n)).clip(-0.4, 0.3)
+    epfo_headcount_trend = (0.02 - latent * 0.08 + rng.normal(0, 0.05, n)).clip(-0.35, 0.25)
+    udyam_registered = (rng.random(n) < (0.92 - latent * 0.20)).astype(int)
 
     # Label: default within next 12 months. Driven by latent risk PLUS an
     # UNOBSERVED shock (fraud, promoter issues, sudden order loss) that no
@@ -177,6 +190,9 @@ def _generate_accounts(rng: np.random.Generator, n: int) -> pd.DataFrame:
             "txn_volume_trend": txn_volume_trend.round(4),
             "cheque_returns_12m": cheque_returns_12m,
             "min_balance_breaches_12m": min_balance_breaches_12m,
+            "electricity_consumption_trend": electricity_consumption_trend.round(4),
+            "epfo_headcount_trend": epfo_headcount_trend.round(4),
+            "udyam_registered": udyam_registered,
             "rm_notes": rm_notes,
             "latent_risk": latent.round(4),
             "default_12m": default_12m,

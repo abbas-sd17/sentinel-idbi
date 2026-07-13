@@ -56,17 +56,48 @@ def get_rating_grade(pd_score: float) -> dict[str, str]:
     return {"grade": "G10", "band": "Severe"}
 
 
-# IFRS-9 / Ind-AS 109 staging aligned to the RAG (Red/Amber/Green) watchlist.
-IFRS9_STAGES = {
-    "green": {"stage": "Stage 1", "basis": "12-month ECL", "provision_coverage": 0.01},
-    "amber": {"stage": "Stage 2", "basis": "Lifetime ECL (not impaired)", "provision_coverage": 0.08},
-    "red": {"stage": "Stage 3", "basis": "Lifetime ECL (credit-impaired)", "provision_coverage": 0.45},
-}
+# --- RBI IRAC / SMA classification (the LIVE regulatory regime for Indian
+# scheduled commercial banks - RBI has deferred Ind-AS 109 for banks, so
+# day-to-day early warning runs on SMA buckets + the RBI EWS/RFA framework).
+def get_sma_category(dpd_max_12m: int | float) -> dict[str, str]:
+    """Worst SMA (Special Mention Account) status touched in the trailing 12
+    months, per RBI IRAC early-stress buckets. NOTE: regulatory SMA reporting
+    uses CURRENT overdue days; this trailing-12m view is the early-warning
+    proxy available from the behavioral feed and is labeled as such."""
+    dpd = int(dpd_max_12m or 0)
+    if dpd > 90:
+        return {"sma": "NPA", "definition": "Touched >90 days overdue in trailing 12m (NPA under IRAC)"}
+    if dpd > 60:
+        return {"sma": "SMA-2", "definition": "Touched 61-90 days overdue in trailing 12m"}
+    if dpd > 30:
+        return {"sma": "SMA-1", "definition": "Touched 31-60 days overdue in trailing 12m"}
+    if dpd > 0:
+        return {"sma": "SMA-0", "definition": "Touched 1-30 days overdue in trailing 12m"}
+    return {"sma": "Standard", "definition": "No overdues in trailing 12 months"}
 
 
-def get_ifrs9_stage(rag: str) -> dict[str, Any]:
-    """Return IFRS-9 stage metadata for a RAG (Red/Amber/Green) bucket."""
-    return IFRS9_STAGES.get(rag, IFRS9_STAGES["green"])
+# IFRS-9 / Ind-AS 109 staging, shown as FORWARD-LOOKING READINESS alongside
+# the live SMA/IRAC view. Staging is evidence-gated, not score-gated:
+#   - Stage 3 (credit-impaired) requires OBJECTIVE evidence of impairment
+#     (90+ DPD / NPA) - a high model PD alone can NEVER put a performing
+#     account in Stage 3.
+#   - A Red/Amber watchlist score on a performing account indicates a
+#     significant increase in credit risk (SICR) -> Stage 2.
+# ECL is computed as PD x LGD x EAD in the scoring engine - there are no
+# fixed per-stage "coverage ratios" here.
+def get_ifrs9_stage(rag: str, dpd_max_12m: int | float = 0) -> dict[str, Any]:
+    """Return IFRS-9 stage metadata for a RAG bucket + impairment evidence."""
+    if int(dpd_max_12m or 0) > 90:
+        return {
+            "stage": "Stage 3",
+            "basis": "Lifetime ECL (credit-impaired: 90+ DPD objective evidence)",
+        }
+    if rag in ("red", "amber"):
+        return {
+            "stage": "Stage 2",
+            "basis": "Lifetime ECL (SICR - significant increase in credit risk, not impaired)",
+        }
+    return {"stage": "Stage 1", "basis": "12-month ECL (performing)"}
 
 
 # Standardized reason-code taxonomy: a stable, bank-auditable code + category
@@ -93,6 +124,9 @@ REASON_TAXONOMY: dict[str, dict[str, str]] = {
     "vintage_months": {"code": "LON-05", "category": "Relationship"},
     "gst_filing_delay_days": {"code": "CMP-01", "category": "Compliance"},
     "nlp_distress_score": {"code": "TXT-01", "category": "Unstructured / NLP"},
+    "electricity_consumption_trend": {"code": "PUB-01", "category": "Public Domain / Alternate Data"},
+    "epfo_headcount_trend": {"code": "PUB-02", "category": "Public Domain / Alternate Data"},
+    "udyam_registered": {"code": "PUB-03", "category": "Public Domain / Alternate Data"},
 }
 
 

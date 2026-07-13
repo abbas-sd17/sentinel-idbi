@@ -13,12 +13,19 @@ import { RagBadge, KpiCard, Card, Skeleton, ErrorState } from "@/components/ui";
 
 const RAG_COLORS: Record<string, string> = { red: "#dc2626", amber: "#d97706", green: "#059669" };
 const RAG_ORDER = ["red", "amber", "green"];
-
-function pdColor(pd: number): string {
-  if (pd >= 0.28) return "#dc2626";
-  if (pd >= 0.14) return "#d97706";
-  return "#059669";
-}
+const RAG_TEXT: Record<string, string> = {
+  red: "text-red-600",
+  amber: "text-amber-600",
+  green: "text-emerald-600",
+};
+const SMA_ORDER = ["Standard", "SMA-0", "SMA-1", "SMA-2"];
+const SMA_TONES: Record<string, string> = {
+  Standard: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "SMA-0": "bg-amber-50 text-amber-700 border-amber-200",
+  "SMA-1": "bg-orange-50 text-orange-700 border-orange-200",
+  "SMA-2": "bg-red-50 text-red-700 border-red-200",
+};
+const PAGE_SIZE = 25;
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
@@ -28,6 +35,7 @@ export default function DashboardPage() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("predicted_pd");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [offset, setOffset] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
@@ -47,7 +55,8 @@ export default function DashboardPage() {
         search: search || undefined,
         sortBy,
         sortDir,
-        limit: 25,
+        limit: PAGE_SIZE,
+        offset,
       })
         .then((a) => {
           setAccounts(a.accounts);
@@ -57,7 +66,7 @@ export default function DashboardPage() {
         .finally(() => setTableLoading(false));
     }, search ? 300 : 0);
     return () => clearTimeout(t);
-  }, [filter, search, sortBy, sortDir]);
+  }, [filter, search, sortBy, sortDir, offset]);
 
   const ragData = useMemo(() => {
     if (!summary) return [];
@@ -96,6 +105,10 @@ export default function DashboardPage() {
 
   const metrics = summary.model_metrics;
   const redCount = summary.rag_breakdown.red || 0;
+  const stages = summary.ifrs9_stage_breakdown || {};
+  const stageLine = "Stage 3" in stages
+    ? `Stage 3: ${stages["Stage 3"]}`
+    : `Stage 2: ${stages["Stage 2"] ?? 0}`;
 
   return (
     <div className="space-y-6">
@@ -136,9 +149,9 @@ export default function DashboardPage() {
           icon={<span className="text-base">&#9650;</span>}
         />
         <KpiCard
-          label="IFRS-9 ECL Provision"
+          label="ECL Provision (PD×LGD×EAD)"
           value={formatINR(summary.ecl_provision)}
-          sub={`Stage 3: ${summary.ifrs9_stage_breakdown?.["Stage 3"] ?? 0} · EL ${formatINR(summary.expected_loss)}`}
+          sub={`${stageLine} · ${summary.ecl_method}`}
           accent="amber"
           icon={<span className="text-base">&#8776;</span>}
         />
@@ -149,6 +162,24 @@ export default function DashboardPage() {
           accent="green"
           icon={<span className="text-base">&#8962;</span>}
         />
+      </div>
+
+      {/* RBI SMA strip */}
+      <div className="card px-5 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+          RBI SMA view (trailing-12m worst)
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {SMA_ORDER.map((cat) => (
+            <span
+              key={cat}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${SMA_TONES[cat]}`}
+            >
+              {cat}
+              <span className="font-mono">{(summary.sma_breakdown?.[cat] ?? 0).toLocaleString()}</span>
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Charts */}
@@ -223,7 +254,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-2">
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
               placeholder="Search account ID..."
               className="px-3 py-1.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
             />
@@ -231,7 +262,7 @@ export default function DashboardPage() {
               {["", "red", "amber", "green"].map((f) => (
                 <button
                   key={f}
-                  onClick={() => setFilter(f)}
+                  onClick={() => { setFilter(f); setOffset(0); }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     filter === f ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
@@ -244,7 +275,7 @@ export default function DashboardPage() {
         }
       >
         <div className="text-xs text-slate-500 mb-2">
-          Showing {accounts.length} of {total.toLocaleString()} matching accounts
+          Showing {total === 0 ? 0 : (offset + 1).toLocaleString()}&ndash;{(offset + accounts.length).toLocaleString()} of {total.toLocaleString()} matching accounts
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -271,7 +302,7 @@ export default function DashboardPage() {
                   <td className="py-2.5 px-2 capitalize text-slate-700">{a.loan_type.replace("_", " ")}</td>
                   <td className="py-2.5 px-2 uppercase text-xs text-slate-500">{a.borrower_profile}</td>
                   <td className="py-2.5 px-2 text-right font-medium text-slate-700">{formatINR(a.loan_amount)}</td>
-                  <td className="py-2.5 px-2 text-right font-mono font-semibold" style={{ color: pdColor(a.predicted_pd) }}>
+                  <td className={`py-2.5 px-2 text-right font-mono font-semibold ${RAG_TEXT[a.rag] || "text-slate-700"}`}>
                     {(a.predicted_pd * 100).toFixed(1)}%
                   </td>
                   <td className="py-2.5 px-2 text-center"><RagBadge rag={a.rag} /></td>
@@ -282,6 +313,25 @@ export default function DashboardPage() {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+          <button
+            onClick={() => setOffset((o) => Math.max(o - PAGE_SIZE, 0))}
+            disabled={offset === 0 || tableLoading}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+          >
+            &larr; Prev
+          </button>
+          <div className="text-xs text-slate-500">
+            Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.max(Math.ceil(total / PAGE_SIZE), 1)}
+          </div>
+          <button
+            onClick={() => setOffset((o) => o + PAGE_SIZE)}
+            disabled={offset + PAGE_SIZE >= total || tableLoading}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+          >
+            Next &rarr;
+          </button>
         </div>
       </Card>
     </div>

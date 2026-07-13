@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ML = ROOT / "ml"
 sys.path.insert(0, str(ML))
 
-from features import engineer_features  # noqa: E402
+from features import engineer_features, set_vectorizer  # noqa: E402
 from segments import get_rag_bucket  # noqa: E402
 
 INPUT_COLUMNS = [
@@ -30,7 +30,8 @@ INPUT_COLUMNS = [
     "collateral_coverage", "bureau_score", "turnover", "gst_sales", "foir",
     "dpd_max_12m", "emi_bounces_12m", "avg_balance_trend", "cc_utilization",
     "gst_filing_delay_days", "txn_volume_trend", "cheque_returns_12m",
-    "min_balance_breaches_12m", "rm_notes",
+    "min_balance_breaches_12m", "electricity_consumption_trend",
+    "epfo_headcount_trend", "udyam_registered", "rm_notes",
 ]
 
 
@@ -58,6 +59,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     model = joblib.load(ML / "models" / "model.joblib")
     feature_cols = joblib.load(ML / "models" / "feature_columns.joblib")
+    set_vectorizer(joblib.load(ML / "models" / "tfidf_vectorizer.joblib"))
 
     scored = score_portfolio(model, feature_cols)
     rng = np.random.default_rng(7)
