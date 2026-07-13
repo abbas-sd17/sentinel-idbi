@@ -1,0 +1,704 @@
+0:53
+[music]
+0:59
+[music]
+1:07
+[music]
+1:15
+Dup. [music]
+1:23
+[music]
+1:47
+Hello. Hi every [screaming]
+1:53
+Hello. Hi everyone. Hope you all are doing well. So a very warm welcome to
+2:00
+the official orientation session for IDBI innovate 2026. My name is Sheri and
+2:06
+I will be your host for the day. We are incredibly excited to have so many talented developers, fintech enthusiasts
+2:13
+and innovators joining us today from across the country. Over the next few
+2:18
+weeks you will be pushing the boundaries of what's possible in modern banking. Today we are going to break down exactly
+2:25
+what this journey looks like, how you can leverage our sandbox infrastructure and what it takes to build a winning
+2:33
+blueprint. So let's dive right in. Before we unpack the technical details,
+2:39
+let's look at the bigger picture. IDVI Innovate 2026 isn't just a competition.
+2:46
+It's a launchpad designed to bring external brilliance into institutional
+2:51
+banking structures. Whether you are a solo developer, your mission here is to
+2:56
+challenge conventional engineering. Quick bit of housekeeping. We have a dedicated time at the end for a live Q&A
+3:04
+sessions where you can ask all your queries. So as we go through the slides, please drop your questions directly into
+3:11
+the live chat framework and our moderation team will pull them up for the final segment. Now I would like to
+3:18
+introduce our guest speaker today Prashant Sur who is a deputy general manager digital banking department at
+3:25
+IDBI bank. Hi Prashant sir.
+3:30
+Yeah hi how are you? Hi Sh. Yeah yeah good. How are you? All good. All good. So Prashant stage is
+3:37
+all yours. We can start up with the session now. Yeah. Thank you Shvi. Uh good afternoon
+3:44
+everyone. We are uh here to discuss on the uh agenda that we have today for the
+3:52
+hackathon that IDPI has just launched. We would welcome warmly all the participants uh the fintech startups and
+4:00
+individual professionals whoever would be willing to participate here and thank you for registering for this hackathon
+4:06
+event today. uh we would go about uh this uh session in the order wherein we
+4:14
+would first like to give you an introduction of our bank then we'll go to the brief details of this hackathon
+4:20
+event. The details would contain overall uh agenda of the hackathon and then post
+4:28
+that we would like to respond to few of the queries which you might be having
+4:34
+and not keeping you waiting we would just go about uh this orientation
+4:39
+session so that you can plan accordingly and start your work with regards to preparing solutions for the problem
+4:46
+statements that we have just hosted on this hackathon. Yeah to give you a brief
+4:52
+about uh our bank. See our bank IDBI is
+4:58
+one of the leading premier commercial banks in India and we are trying to
+5:04
+consistently push the boundaries on the digital front as well both in the retail
+5:09
+and corporate banking side. Right. And uh this being a very traditional bank uh
+5:15
+since long and we have been part of the DFI era of India wherein we had
+5:20
+supported uh the institution building atmosphere of the country. Now as part
+5:26
+of its uh revised uh uh profile of the
+5:31
+bank as a commercial banking segment partner we are into purely retail and
+5:38
+commercial banking and we are driving the digital initiatives in the banking sector as well. So this is a big
+5:45
+paradigm shift for the banking as well and for us as a bank. And now the goal
+5:51
+that we are looking at to achieve through this hackathon would be to
+5:56
+co-create with developers like you fintex and startups to build some uh
+6:02
+interesting and innovative products in the banking segment for overall banking segment as well and for IDBI's overall
+6:10
+digital uh development. Right. So going ahead with this agenda what we
+6:17
+thought was as part of the bank's innovation journey we had done few of
+6:22
+the internal exercises where we have collected few of the problem statements which our internal departments and
+6:28
+business teams have been facing right and now we have come forward with those
+6:35
+problem statements in front of you to seek uh your co-creation abilities and
+6:42
+your skills skill sets to build solutions which would be uh feasible to
+6:48
+be deployed at a large scale in the bank and has a scalable architecture and the
+6:54
+production uh the prototype should be production ready. That is what is our motive to put forth these problem
+7:02
+statements while we will be doing it. The technology that we will be using would be the latest in the industry,
+7:10
+latest in banking industry. For that we would be providing some enablers for you
+7:17
+to work and those enablers would be in the form of APIs and our sandbox
+7:22
+environment. If at all the solution the prototype is acceptable in the initial
+7:28
+stages, we'll go about providing the sandbox environment to test the feasibility of the solution. Right? So
+7:34
+moving ahead that was the background of what we intend to do in this hackathon.
+7:40
+Moving ahead we would just give you a brief of what problem statements we have showcased in this hackathon for you to
+7:47
+uh start working on them and help us co-create and build some suitable
+7:53
+solutions for it. The first problem statement that we have is for creating a
+7:59
+digital wealth management application. What we are looking for is a
+8:05
+comprehensive solution that can be provided to the customers of our bank,
+8:10
+our retail and liability customers or uh say the liability customers of the bank
+8:19
+wherein we can have an overall 360deree view of their savings, investments and
+8:25
+all their spending patterns. Using this data and using the power of AI, we would
+8:32
+like to like you to help us in building a solution avatar based wealth
+8:37
+management app that would be helpful in providing advisory services at bank
+8:43
+scale to our customers right and if the solution is feasible I guess the
+8:50
+industry adoption would definitely be there. So this is the first problem statement that we have. Going ahead and
+8:58
+uh going through the second problem statement that is something where we would like you to help us in building a
+9:05
+solution to identify prospective customers for us from our pool of
+9:13
+customers. Initially we would be interested in selecting the customers
+9:18
+which are already there with us on the liability side. We would like to understand what their personal needs
+9:24
+would be. Maybe if someone would be uh looking out for home loans or auto loan
+9:29
+or consumer durable loans or something like that wherein we can identify the
+9:34
+need we can match it with our products based on the features of the products
+9:40
+and the requirement initial scrutiny requirements of the products and we would uh start pitching it to them so
+9:48
+that in a manner to attract their attention and also to serve their purpose. Right. Uh so this would be
+9:56
+initially for our existing customers and then maybe we can look for uh customers who are not there with us but we can
+10:03
+look for onboarding them. So that is the second problem statement that we have.
+10:08
+And the third problem statement that we have is specifically designed
+10:13
+specifically to target our MSME customers wherein uh today what we face is in the
+10:20
+banking industry there is a huge unserved segment unserved and
+10:27
+underserved segment in the MSME segment which is the backbone of Indian economy
+10:32
+right so using a IML tools and the data that is there at our disposable uh
+10:38
+disposal which is uh freely available or say you do not have to get the consent
+10:45
+of the borrowers or the customers prospective borrowers initially like uh the GST details initial GST
+10:54
+details or using account aggregator details we can get their uh liability
+10:59
+account details from other banks and all consolidating all these details we can
+11:05
+formulate a solution wherein we and look for uh customers needs, customers
+11:11
+business needs which can be met by providing them some kind of business loan. Right? So using this tools, using
+11:20
+these tools and our uh technical expertise, we would want to co-create a
+11:27
+product wherein we can identify the business needs of the MSME segment which
+11:33
+is a large segment and it is mostly underserved and unserved.
+11:38
+Right? And the fourth problem statement that we have is once we extend the
+11:45
+loans, once we extend the credit facilities, we also want to keep a tab on the overall utilization of the credit
+11:53
+facility and also to see whether how well this credit facility is being
+11:58
+utilized and if there are any inherent weaknesses in the overall business. So
+12:03
+we would like to identify those weaknesses pretty in advance. So that we
+12:09
+can take corrective measures. We can advise our customers to improve and wherever there are scope there is scope
+12:16
+for improvement we would try to uh request the customer and improve it or
+12:21
+we can start arresting those uh lack wherever it is identifiable.
+12:28
+As of now, bank is already working on this by utilizing the model that bank
+12:34
+has in initially developed internally by the help of our existing uh vendors and
+12:41
+our existing team. But what we realized that we are not getting the level of
+12:47
+accuracy that we are expecting. So we want to improve our accuracy levels and
+12:52
+also to see if we can build a predictive model which can in advance of 12 months
+13:00
+help us in predicting defaults in the accounts in mostly in MSME loans as of
+13:06
+now slowly and slowly we'll try to see where we can uh strengthen and how we
+13:12
+can refine this offering. So this product or this application what we are
+13:18
+looking at is the inputs would be in the form of both structured and unstructured data. So using these data points we
+13:26
+would like to uh build a solution around it. Right? Uh and apart from these
+13:34
+problem statements the last track that we have which is the track five track five is of novel innovation. This track
+13:43
+we thought uh it should be open wherein we can explore
+13:48
+uh problem statements or we can explore solutions to problem statements which we
+13:54
+were not able to identify but which develop developers co-creators or fintex
+14:02
+startups like you might have already identified and you might have worked on it. You already would have some kind of
+14:09
+solution with you. You can propose, you can submit your ideas, your solutions to
+14:14
+us. We will evaluate our team internally would evaluate the top management in
+14:20
+IDBI, the senior management would go through your proposals. We'll see if
+14:25
+that is uh acceptable to our bank and if so we can try to see how to adopt it. if
+14:33
+at all it is feasible and the possibility is there and then take it forward and try to see how well we can
+14:40
+utilize it. Right? So this is an open track wherein you can provide us some
+14:45
+innovative solutions that you might think that would be helpful to the bank and the banking segment as a whole.
+14:52
+Right? So these are the few problem statements and the novel idea track that we have in this initiative. We are
+15:00
+partnered with uh AWS that is uh Amazon web services which is providing a
+15:07
+support on the cloud uh infrastructure and uh they would also be our knowledge
+15:14
+partner in this whole initiative while providing guidance on various aspects of
+15:19
+the hackathon and hacktokill is our partner in
+15:25
+managing and providing us these kind of platforms where we interact with you,
+15:30
+where we get in touch with co-creators, developers, startups and fintexs like
+15:35
+you and with their support we are trying to build these solutions.
+15:41
+The last partner that we have in this initiative is our technology partner which is ACC applied cloud computing who
+15:49
+are providing this sandbox support to us and they would be coming in at the
+15:54
+second stage of the evaluation round. Once uh the idea is initially scrutinized and found to be acceptable
+16:03
+uh the prototype is acceptable then while we move to the sandboxing stage ACC would be providing required support
+16:10
+to us. Right? So this is about the partners and now we come to the most
+16:15
+exciting part of this uh hackathon which you would be most interested in. This is the price pool that we have.
+16:23
+Excuse. [cough and clears throat] It's about 15 lakhs that we have the overall price pool
+16:30
+while we would be providing you the sandbox access in the second stage of the hackathon
+16:37
+and then we would also like to explore the opportunities of deployment of pilot
+16:45
+just to see the acceptability and the feasibility of the application going forward.
+16:52
+Right? So with this we would like to also just reiterate of course the
+16:57
+details are there on the portal the micro site that we have hosted for this hackathon.
+17:04
+This is being an orientation session. We will be providing you the brief. We have provided you a brief of what we intend
+17:11
+to do. What is the vision of the bank? How we would be going about conducting
+17:16
+this hackathon. uh the second session that we have an interaction with you would be on June 30th wherein we would
+17:23
+be specifically taking a deep dive in the problem statement wise uh details and
+17:29
+discussions on July 9th uh which is the last date for uh submission of
+17:36
+registration and submission of your proposals. So July 9th would be the next milestone and subsequently during July
+17:44
+and August we would be carrying out the evaluation stages. So those details anyways are there on
+17:51
+our micro site. You can visit there. But this is just a reiteration and a
+17:57
+reminder to you that please do all your submissions by July 9th. And uh please
+18:04
+submit the most innovative ideas for us to start building for these uh problem
+18:10
+statement. Start building solutions for these problem statements. Right. Hope I
+18:16
+have provided a comprehensive idea of uh the whole hackathon initiative.
+18:23
+Yeah. Shi over to you. I guess these are the answer. Yeah, thank you so much Pashan sir.
+18:30
+Thank you for this. Now I would like to share my screen so I can explain the part our participants that where they
+18:37
+can submit and everything. Okay. So I hope my screen is visible.
+18:43
+Yes, it is. So once you search for IDBI innovate hackathon the page looks like
+18:50
+this. You need to go to the team dashboard. Here is our road map. So currently we
+18:57
+are live with registration, team formation, prototype submission. So the
+19:02
+these things they are closing on 9th of July. Now the we have then a dedicated
+19:08
+AMA session. So where the participants can interact and ask all their queries.
+19:13
+It's on 30th June. Short listing will be done on 21st June for 21st July 2026.
+19:21
+Then there will be a refined prototype submissions. So basically here what you need to do is whatever prototype you
+19:27
+have built and it is shortlisted then you need to refine it for the for the finale and everything. So it will start
+19:34
+from 22nd July and go till 31st of July. Then the finalist announcement will be
+19:40
+made on 13th August 2026. and the demo day and middle announcement will be on
+19:46
+21st of August. Now for the for those who are making a team. So here the team
+19:54
+sizes up to maximum up to four members. So what you need to do is go to team management. Click on create a team.
+20:01
+Click on I understand. You can write any uh unique team name or anything over
+20:07
+here. give a team description like why your in which way your team is capable
+20:13
+or something like that and then you can put even a cool logo of your team over here and you just need to click on
+20:19
+create. After that you need you can send a request to your uh fellow colleagues
+20:25
+or anyone who you want to join their team and you can even accept their
+20:31
+request as well. Now for the submissions go to the submission tab. Here it is
+20:36
+prototype submission written over here. Click here. So we have given a PPT template. You need to exactly see you
+20:44
+need to exactly use this template only the number of slides which is mentioned over here and everything should be same.
+20:51
+You cannot change this template. Then you need to select uh these are the
+20:57
+problem statement. You need to select any one problem statement on which you are working. Here should be the
+21:02
+deployment link and the prototype PPT and the GitHub repo link over you need to paste it over here and click on
+21:08
+submit. Okay. Now moving ahead
+21:13
+in the interactions tab. If you have missed today's session, you can go to
+21:18
+click on watch over here and you can see the sessions for the recordings. If you need any need to know something about
+21:25
+any particular problem statement, you can watch from this session. Now in the challenges section there are five all
+21:31
+the problem statement mentioned and a brief about each problem statement is also given over here. So you can even
+21:38
+see it from here. So I hope all the things are uh clear to everyone. So now
+21:45
+moving ahead uh we can go for the Q&A part as well.
+21:55
+Okay. So can team members can be from different
+22:01
+companies or cities? Yes, they can be from uh different companies and cities but the team size should be four
+22:07
+members, maximum four members.
+22:13
+Question. So one question is there uh from problem statement two. Is this lead generation tool meant for existing IDB
+22:21
+customers only or can it pull in completely new prospects who have never banned with IDBI?
+22:29
+Yeah, I would like to take it. uh shi uh we would be looking initially at uh the
+22:36
+lead generation from our existing customers right now
+22:41
+and maybe once the solution is stabilized and refined products are
+22:47
+there we would like to extend it to nonIDBI customers as well but initially
+22:53
+it would be for existing customers of the bank uh I don't think there would be much
+22:58
+change in the solution even if it is for an ETB or an NTB the solution would be
+23:04
+the same but bank would be looking at existing customer sign initial.
+23:09
+Okay. So I hope Karthik uh got your answer.
+23:16
+So next question is does IDBI already use any A IML in its lending currently
+23:21
+or would this be the first major deployment? uh right so IDBI is using AI and ML
+23:30
+tools in its lending journeys but not to a great extent but we would we are in
+23:36
+the process of scaling it up. So this is one of the initiatives where we would like to build solutions and uh start
+23:45
+using it more uh prolifically. Okay great.
+23:52
+So for next question, what's IDBI current NTC NTB rejection rate and
+23:58
+what's the hash one reason for rejection when it happens?
+24:05
+Uh but NTC what do you mean by NTC? If
+24:11
+someone NTB I understand it's new to bank customers, right? Yes. So current rejection rate see
+24:19
+generally what we are doing is today most of the banking in our uh retail
+24:25
+segment is being done in a traditional manner or say manual manner but the uh
+24:33
+online journeys or uh STP journeys which are being built in a digital platform
+24:38
+are mostly for our existing customers. So the NTP journey rate of rejection and
+24:45
+NTC would be in the form of uh generally uh uh the
+24:52
+manual form or traditional banking journeys that we are doing. So it is as per the market standards or banking
+24:58
+industry norms that we are following.
+25:03
+Yeah. Okay. So next question is if a BFSI
+25:10
+professional with 4.5 years professional in wealth management and banking I'm
+25:16
+participating solo am I still eligible for submission of my prototype? Yes you
+25:22
+are V because yes you are eligible.
+25:27
+You are eligible Vikas. We would just like to evaluate your solution during
+25:34
+the initial stage. If found suitable we'll try to take it to the next level as well but we would also like to
+25:40
+understand uh how you would provide us a digital solution on this front. So uh
+25:46
+the tech uh part would also be evaluated while we are evaluating your solution.
+25:52
+Right. Okay. Yeah. Uh this question is regarding
+26:00
+fresh graduate students can participate in this hackathon. uh right now we are looking at scalable solutions that can
+26:08
+be deployed uh across the bank. So and this being a hackathon which we are
+26:15
+looking for solutions uh with fintech partners startups as well and
+26:21
+professionals with some experience and expertise in the mentioned domains. So
+26:27
+in case students or graduates who are there if they can provide us suitable
+26:33
+options or suitable solutions we'll definitely accept butations
+26:40
+or products which would help us solve our problem statements right now.
+26:47
+Okay. So next question is at what stage do most of the MSME applications get
+26:54
+rejected? See right now while we are looking at
+26:59
+digital journeys uh while we get the information immediately and with uh
+27:06
+ample amount of data available through APIs we can uh run the BRE and the B
+27:15
+execution doesn't take much time based on which we can come to a conclusion whether we can move ahead with this
+27:21
+application or not. So it would be at the initial stage once the borrower is
+27:27
+willing to share the respective or related data points with us. We'll be in
+27:32
+a position to immediately inform whether we are moving ahead or we need to reject this application. So it
+27:40
+doesn't take much time. It would be initial but first stage I guess in the
+27:45
+application review process. Yeah.
+27:50
+Okay. So next question is can a team participate in multiple tracks? No you
+27:56
+each team right each team is to submit one particular problem statement solution to
+28:04
+one particular problem statement. Yes.
+28:09
+How do you currently identify an MSME that is growing rapidly?
+28:16
+See identification of an MSME which is growing rapidly. It is purely based on
+28:22
+the traditional methods of going through their balance sheets, their turnover which is increasing year on year and
+28:28
+all. So I don't know and then we would
+28:34
+traditionally do is we identify a cluster of MSMES start screening those
+28:39
+uh MSME units which are operating there and start studying their balance sheet
+28:45
+start going through their banking records. This is the traditional process that is what we would be deploying in
+28:51
+the digital world as well and you people should help us in
+28:58
+identifying them if there are any digital tools available and if we can uh
+29:04
+fasten this process. Yeah.
+29:09
+Yeah. So next question is uh if a person is currently a student but also works as
+29:16
+a freelancer so are they eligible to participate under the freelancer category?
+29:24
+Yeah like I have responded previously in terms of uh category where students are
+29:30
+willing to participate. We are actually looking at scaling up the solutions and taking it to deployment if at all it is
+29:38
+acceptable to the bank. So while we do it, we want a long-term association with
+29:44
+any of the participants, right? If at all it is selected. So it should help us
+29:50
+if there are fintexs and startups which are already having some solution which
+29:56
+can be refined to meet our requirements. While students can participate but uh
+30:02
+they need to also provide us the digital solutions. they need to uh build confidence in uh the banking uh bank's
+30:10
+management that the solution is feasible and it can be scalable. If that is there then we can further evaluate and uh look
+30:18
+to see how we can take forward the association.
+30:24
+[clears throat] Okay. So uh next question is is the hackathon
+30:29
+open only to registered startups and fintech companies or can any independent
+30:35
+professional also apply? Yeah, as of now it is open for
+30:40
+professionals as well which is uh very clearly mentioned. Yes. So they can apply. It would be evaluated
+30:49
+in the same manner that we would be evaluating the solution submitted by any other participant in this
+30:57
+Okay. So, next question is
+31:02
+in the first prototype session, do we have to create the prototype or only the PPT? Since we would not have the access
+31:10
+to synthetic data sets and sandboxed APIs at this stage. So, you need to
+31:15
+submit a working prototype for the for the first stage like the deployment link
+31:20
+and the GitHub link everything with the PPT also.
+31:27
+Right. [clears throat] So it's idea only in PPD for the n for
+31:34
+the n prototype should we use our own and we'll be shortly touched on that on
+31:41
+that
+31:49
+uh see while you are submitting the ppts and a brief idea of how the solution
+31:57
+should be I I don't think we'll be looking at anything uh with regards to
+32:02
+the synthetic data point of view but in case if you have a readym made prototype
+32:07
+you and if it is feasible for you to submit the prototype with some synthetic
+32:13
+data it is welcome but initially we are looking at the solution an idea of how
+32:18
+the solution can be built what tools you would be using to build it so that we
+32:24
+can also check the acceptability within the banking uh atmosphere and then the
+32:30
+evaluation would take place. Okay. So, next question is what is the
+32:37
+minimum size of the team? So, you can participate as a solo member and the maximum team size is four. So, it's 1 to
+32:44
+four.
+32:50
+Track four target moving accuracy from 16 to 22% to 90% on an imbalanced
+32:56
+default portfolio. Raw accuracy [clears throat] can be misleading. Could you clarify the intended target metric?
+33:06
+Uh see we want to improve the accuracy. The accuracy levels right now that we
+33:13
+have is uh very less as per our understanding. We wanted to improve that
+33:19
+and also uh apart from the accuracy levels we also want to try and build a
+33:26
+solution which can predict it well in advance. As of now what we are working
+33:31
+is the data is providing us some solution which is predicting it maybe 3
+33:37
+months in advance. that is not enough time to start acting on it and uh start
+33:43
+working out on rectifying measures taking corrective measures. So there are
+33:48
+two aspects one to improve on the accuracy levels and to also improve on
+33:54
+the time in advance how much time can we uh start predicting the defaults.
+34:02
+So considering that you can select whichever target metrics you want to follow and you can build the solution to
+34:09
+suit our results and requirement. Okay. So next question is will IDBI be
+34:17
+providing the external data for financial health scorecard track?
+34:23
+the external data points or the internal data points. It would all be mock data
+34:29
+that we would be providing and uh that would be the data sets which would be
+34:35
+made available during the sandboxing stage. So it all depends on what kind of data
+34:42
+points we require and then we'll see how we can generate the specific data. Yes,
+34:48
+of course, the external data points whichever are relevant for the uh solution to be developed, we'll try and
+34:54
+make it available. Okay. So, next question is what exactly
+35:03
+qualifies as a noble idea? Does it need to be completely unrelated to all four
+35:08
+defined problem statements? Yes, it should be unrelated to the four
+35:14
+problem statements and it can be uh related to any of the segments in the banking industry and uh yeah uh it
+35:23
+shouldn't be uh related to any of the problem statements.
+35:28
+Okay. Next question is how does IDBI's current
+35:34
+MSM MSME loan approval timeline compared to NBFC competitors like flex flexi
+35:42
+loans or lending cards? See the target segment that is being
+35:48
+targeted by NBFCs and banks are completely different. So I guess there
+35:54
+shouldn't be any comparison on that part as well. But right now what we are doing
+36:00
+is we are trying to build digital solutions to improve upon that t that is
+36:06
+there and try to achieve the tat which is there in the market. So of course the difference is there but
+36:13
+the gap is closing.
+36:19
+So do we need a working prototype or MVP at the time of registration?
+36:26
+Yes, we would need that.
+36:34
+What kind of synthetic data is available? Transactions, UPI patterns, MSME financials.
+36:42
+Synthetic data is available. Yes, synthetic data would be whatever is
+36:51
+absolutely essential for the solution to be built. we'll try to provide that.
+36:57
+So once the solutions are shortlisted in the first evaluation stage, we'll have a
+37:04
+a detailed uh understanding of what kind of data sets will be required for the
+37:10
+solutions to be built and accordingly we'll start working on that.
+37:18
+So to connect customers for loans, how much of it's automated? Do you manly
+37:23
+call via call center? If yes, what percent?
+37:30
+For loans, how much of it is automated?
+37:35
+Yes. See, [snorts] traditional methods follow all the uh processes. It is
+37:40
+manually. We generally call the customers and we uh automate it a bit.
+37:47
+So, we are looking at improving the process that are there, right? And uh
+37:54
+[clears throat] I would like to add that uh any problem statement specific uh
+37:59
+discussions or clarifications we would again be holding a session on 30th.
+38:04
+Maybe we can have a discussion during that time as well. So in case if there are any other
+38:10
+queries related to the process uh that is there in the hackathon that we need to follow maybe we can focus on that or
+38:17
+else also we are open maybe you can uh send your queries to hack to scale and
+38:23
+we will try to respond to that. Okay. So if you have any other queries
+38:30
+or any doubts you can reach out to us at supportthe ratehacktoskll.com.
+38:37
+So thank you so much Prashant sir for this
+38:42
+session. Thank you so much. Yes the session was very interactive and thank
+38:47
+you so much everyone for joining this session. See you soon.
+38:53
+Thank you participants. We would like to go through the solutions you would be submitting. Thank
+38:59
+you active skill team. Thank you. Keep building guys.

@@ -1,0 +1,10 @@
+# Netlify deploy config for the Sentinel Next.js dashboard (open-source host).
+# Set NEXT_PUBLIC_API_URL in the Netlify UI to your Hugging Face Space URL,
+# e.g. https://<user>-sentinel-msme-default-api.hf.space
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

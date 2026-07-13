@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ML dependencies
+        run: pip install -r ml/requirements.txt
+      - name: Generate data
+        run: cd ml && python generate_data.py --n 1000
+      - name: Train model
+        run: cd ml && python train.py
+      - name: Evaluate model
+        run: cd ml && python evaluate.py
+
+  backend:
+    runs-on: ubuntu-latest
+    needs: ml-pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Lint import
+        run: python -c "from backend.app.main import app"

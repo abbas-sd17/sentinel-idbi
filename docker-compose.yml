@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_PATH=/app/ml/data/msme_panel.parquet
+      - MODEL_PATH=/app/ml/models
+    volumes:
+      - ./ml/data:/app/ml/data:ro
+      - ./ml/models:/app/ml/models:ro
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend

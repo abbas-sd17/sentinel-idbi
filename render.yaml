@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sentinel-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MODEL_PATH
+        value: /app/ml/models
+      - key: DATA_PATH
+        value: /app/ml/data/msme_panel.parquet

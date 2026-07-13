@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Keep ml/models and ml/data for deployment - do NOT ignore
+
+# Node
+node_modules/
+.next/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Build
+dist/
+build/
+
+# Runtime / local
+backend/app/audit.log
+*.log
+.claude/
+frontend/tsconfig.tsbuildinfo

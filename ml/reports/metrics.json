@@ -1,0 +1,65 @@
+{
+  "auc_roc": 0.7869,
+  "pr_auc": 0.3368,
+  "ks_statistic": 0.456,
+  "gini": 0.5738,
+  "brier_score": 0.0732,
+  "precision": 0.2056,
+  "recall": 0.7554,
+  "f1": 0.3232,
+  "f2": 0.4921,
+  "precision_at_red": 0.4007,
+  "recall_at_red": 0.293,
+  "recall_watchlist": 0.5833,
+  "precision_watchlist": 0.2472,
+  "raw_accuracy": 0.7057,
+  "optimal_threshold": 0.0782,
+  "lift_at_10pct": 3.92,
+  "default_rate": 0.093,
+  "n_samples": 4000,
+  "validation": "held-out test split (20%), never seen in training",
+  "note": "Raw accuracy is misleading on imbalanced default portfolios and in-sample scores overstate skill. Metrics here are computed on a held-out test set. Primary metrics: AUC-ROC, KS, Gini, PR-AUC, recall-on-defaulters - not raw accuracy.",
+  "benchmark_context": "Bank-grade MSME PD models typically achieve KS 0.35-0.50 / Gini 0.45-0.60. This model sits in that band on honest holdout - credible separation, not the >0.90 in-sample scores that signal leakage (the exact red flag raised in the AMA).",
+  "baseline_accuracy_range": "16-22%",
+  "segment_metrics": [
+    {
+      "loan_type": "cash_credit",
+      "n": 1008,
+      "defaulters": 85,
+      "auc_roc": 0.8103,
+      "ks": 0.5267,
+      "gini": 0.6206
+    },
+    {
+      "loan_type": "equipment_finance",
+      "n": 972,
+      "defaulters": 99,
+      "auc_roc": 0.7897,
+      "ks": 0.4575,
+      "gini": 0.5794
+    },
+    {
+      "loan_type": "lap",
+      "n": 1022,
+      "defaulters": 102,
+      "auc_roc": 0.7729,
+      "ks": 0.4723,
+      "gini": 0.5458
+    },
+    {
+      "loan_type": "term_loan",
+      "n": 998,
+      "defaulters": 86,
+      "auc_roc": 0.7718,
+      "ks": 0.4172,
+      "gini": 0.5436
+    }
+  ],
+  "early_warning": {
+    "horizon_months": 12,
+    "defaulters_flagged_pct": 58.3,
+    "avg_lead_time_months": 6.4,
+    "median_lead_time_months": 6.0,
+    "note": "Lead time = months from observation to default event, for defaulters placed on the Amber/Red watchlist."
+  }
+}
