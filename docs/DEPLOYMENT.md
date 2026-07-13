@@ -1,74 +1,75 @@
 # Sentinel Deployment Guide (Open-Source Hosting)
 
-Everything here runs on **open-source software and open platforms** — no
-proprietary services, no paid APIs, no external LLM. Backend on **Hugging Face
-Spaces** (Docker SDK), frontend on **Netlify** (or any static/Next.js host).
+Everything here runs on **open-source software and free hosting tiers** — no
+proprietary services, no paid APIs, no external LLM. The trained model +
+synthetic dataset are baked into the Docker image, so the deployment needs
+**no external database** and the link stays stable.
 
-## Prerequisites
-- Public GitHub repository (code is MIT-licensed)
-- Hugging Face account (free) — backend
-- Netlify account (free) — frontend
-- 3-minute demo video (OBS / any open recorder)
+## Live deployment (current)
 
-The trained model + synthetic dataset are baked into the Docker image, so the
-deployment needs **no external database** and the link stays stable.
+| Tier | Platform | URL |
+|---|---|---|
+| Backend API | Render (free, Docker) | https://sentinel-api-hv1o.onrender.com |
+| Frontend | Netlify (free) | https://idbitrack4.netlify.app |
 
-## Step 1: Push to GitHub
+> ⏱️ **Warm the backend before judging/demo**: Render's free tier sleeps after
+> 15 idle minutes — open
+> [sentinel-api-hv1o.onrender.com/health](https://sentinel-api-hv1o.onrender.com/health)
+> once, wait ~50 seconds, and the dashboard is instant after that.
 
-```bash
-git init
-git add .
-git commit -m "Sentinel: MSME Default Prediction - IDBI Innovate Track 04"
-git remote add origin https://github.com/YOUR_USERNAME/sentinel-idbi.git
-git push -u origin main
-```
+## Step 1: Backend on Render (free tier)
 
-Ensure `ml/models/*.joblib` and `ml/data/msme_panel.parquet` are committed
-(they are baked into the image).
+Render deploys straight from the repo's [`render.yaml`](../render.yaml)
+Blueprint — it builds [`backend/Dockerfile`](../backend/Dockerfile) (which
+honors the platform-injected `$PORT`) with the repo root as build context.
 
-## Step 2: Deploy Backend — Hugging Face Space (Docker)
-
-1. https://huggingface.co/new-space → SDK: **Docker** → Blank.
-2. Connect the GitHub repo (or `git push` the repo to the Space remote).
-   The Space uses the repo-root **`Dockerfile`** (listens on port 7860).
-3. Put the metadata frontmatter from `deploy/huggingface/README.md` at the top
-   of the Space's `README.md` (sets `sdk: docker`, `app_port: 7860`).
-4. The Space builds automatically. Live API:
-   `https://<user>-<space>.hf.space` — Swagger at `/docs`, health at `/health`.
+1. https://dashboard.render.com → **New + → Blueprint**.
+2. Under **Public Git Repository**, paste
+   `https://github.com/abbas-sd17/sentinel-idbi` → **Continue** (no GitHub
+   OAuth needed for a public repo; auto-deploy on push is not available on
+   this path — use **Manual sync** on the Blueprint page after pushing).
+3. Name the blueprint → **Deploy Blueprint**. The `sentinel-api` free web
+   service builds in ~5-10 minutes.
+4. Verify: `curl https://<your-service>.onrender.com/health` →
+   `{"status":"ok","model_loaded":true,"data_loaded":true}`.
 
 CORS is already open (`allow_origins=["*"]`), so the frontend can call it.
 
-## Step 3: Deploy Frontend — Netlify
+## Step 2: Frontend on Netlify
 
-1. https://app.netlify.com → Add new site → Import from GitHub.
-2. Netlify reads `netlify.toml` (base = `frontend`, `@netlify/plugin-nextjs`).
-3. Set environment variable:
-   - `NEXT_PUBLIC_API_URL` = your HF Space URL (e.g.
-     `https://<user>-sentinel-msme-default-api.hf.space`)
-4. Deploy → copy the URL (e.g. `https://sentinel-idbi.netlify.app`).
+1. https://app.netlify.com → **Add new project → Import from GitHub** → pick
+   the repo. Netlify reads `netlify.toml` (base = `frontend`,
+   `@netlify/plugin-nextjs`).
+2. Set the environment variable **before deploying** (or redeploy after
+   changing it — `NEXT_PUBLIC_*` values are baked in at build time):
+   - `NEXT_PUBLIC_API_URL` = your Render URL
+     (e.g. `https://sentinel-api-hv1o.onrender.com`, no trailing slash)
+3. Deploy → open the site; the dashboard should load live portfolio data.
 
-(Vercel or Cloudflare Pages work identically — same env var. Pick any.)
+(Vercel or Cloudflare Pages work identically — same env var.)
 
-## Step 4: Verify End-to-End
+## Alternative: Hugging Face Spaces (Docker)
+
+The repo-root [`Dockerfile`](../Dockerfile) (port 7860) and
+[`deploy/huggingface/README.md`](../deploy/huggingface/README.md) frontmatter
+support running the API as an HF Docker Space. **Caveat**: HF now gates the
+Docker SDK behind a paid plan on new accounts, and binary files
+(`*.joblib`, `*.parquet`, `*.png`) must be pushed via Git LFS/Xet. Render is
+the recommended free path.
+
+## Verify end-to-end
 
 ```bash
-curl https://<user>-<space>.hf.space/health
-# Open the Netlify URL in a browser; the dashboard should load live data.
+curl https://sentinel-api-hv1o.onrender.com/health
+# Open https://idbitrack4.netlify.app - dashboard KPIs, SMA strip, account
+# detail (SMA + stage chips, decision panel), batch upload validation.
 ```
 
-## Step 5: Record Demo Video (3 min)
-
-Follow `docs/DEMO_VIDEO_SCRIPT.md` (use OBS Studio — open source).
-
-## Step 6: Fill PPT & Submit
+## Fill PPT & submit
 
 ```bash
-python scripts/fill_ppt.py \
-  --team-name "YOUR_TEAM" \
-  --leader "YOUR_NAME" \
-  --github "https://github.com/YOUR_USERNAME/sentinel-idbi" \
-  --demo-url "https://sentinel-idbi.netlify.app" \
-  --video-url "https://youtu.be/YOUR_VIDEO"
+pip install python-pptx
+python scripts/fill_ppt.py   # defaults carry the final team name, leader, and links
 ```
 
 ## Local Development
@@ -91,8 +92,5 @@ docker-compose up --build
 # Frontend: http://localhost:3000  |  Backend: http://localhost:8000
 ```
 
-## Alternative fully self-hosted option
-
-Any VPS with Docker: `docker-compose up -d` behind nginx. 100% open-source
-stack, no third-party PaaS. `render.yaml` is also kept for Render/Railway if
-preferred (still just runs the same open-source Docker image).
+Any VPS with Docker works: `docker-compose up -d` behind nginx — 100%
+open-source stack, no third-party PaaS required.

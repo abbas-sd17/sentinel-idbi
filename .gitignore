@@ -6,7 +6,9 @@ __pycache__/
 venv/
 .env
 
-# Keep ml/models and ml/data for deployment - do NOT ignore
+# Keep ml/models and ml/data/msme_panel.parquet for deployment - do NOT ignore.
+# The CSV twin is regenerable (python ml/generate_data.py) and stays local-only.
+ml/data/msme_panel.csv
 
 # Node
 node_modules/

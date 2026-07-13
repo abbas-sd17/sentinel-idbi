@@ -57,7 +57,7 @@ All metrics are computed on a **held-out 20% test split (n=4,000) never seen dur
 
 ### How Sentinel delivers the >90% intent
 
-The intent behind the bank's >90% accuracy target is reliability a credit team can act on, and the orientation session explicitly allowed teams to "select whichever target metrics you want to follow" (OrientationSessionInnovate.txt, lines 612-613). Sentinel delivers that intent as:
+The intent behind the bank's >90% accuracy target is reliability a credit team can act on, and the IDBI orientation session explicitly allowed teams to "select whichever target metrics you want to follow". Sentinel delivers that intent as:
 
 1. **NPV 95.6%** — more than 95 of every 100 accounts the model clears stay good over the next 12 months.
 2. **Green-clearance reliability 94.7%** at the production watchlist cuts.

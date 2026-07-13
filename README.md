@@ -6,6 +6,16 @@ Sentinel is an explainable AI system that predicts MSME loan defaults **12 month
 
 > **RAG here = Red / Amber / Green** traffic-light risk buckets — not retrieval-augmented generation. There is no LLM in this system.
 
+## Live Demo
+
+| | Link |
+|---|---|
+| **Dashboard (product)** | https://idbitrack4.netlify.app |
+| **Scoring API** (Swagger at `/docs`) | https://sentinel-api-hv1o.onrender.com |
+| **3-minute demo video** | https://youtu.be/DLrS6FQ7Jcs |
+
+> ⏱️ **Warm the backend before judging/demo**: Render's free tier sleeps after 15 idle minutes — open [sentinel-api-hv1o.onrender.com/health](https://sentinel-api-hv1o.onrender.com/health) once, wait ~50 seconds, and the dashboard is instant after that.
+
 ## Problem Solved
 
 IDBI Bank's current default prediction model achieves only **16-22% accuracy** on imbalanced MSME portfolios and predicts stress only ~3 months ahead. Sentinel delivers:
@@ -22,7 +32,7 @@ IDBI Bank's current default prediction model achieves only **16-22% accuracy** o
 
 ## How Sentinel delivers the >90% intent
 
-The intent behind the bank's >90% accuracy target is *reliability you can act on*. Sentinel delivers that intent on the operating points that matter (the orientation session explicitly allowed teams to "select whichever target metrics you want to follow" — OrientationSessionInnovate.txt, lines 612-613):
+The intent behind the bank's >90% accuracy target is *reliability you can act on*. Sentinel delivers that intent on the operating points that matter (the IDBI orientation session explicitly allowed teams to "select whichever target metrics you want to follow"):
 
 1. **NPV 95.6%** — more than 95 of every 100 accounts the model clears stay good over the next 12 months.
 2. **Green-clearance reliability 94.7%** at the production watchlist cuts (`npv_green`).
@@ -106,10 +116,13 @@ docker-compose up --build
 
 ## Deployment (100% open source)
 
-- **Backend**: Hugging Face Spaces (Docker SDK) — root `Dockerfile`, port 7860
-- **Frontend**: Netlify (`netlify.toml`) — set `NEXT_PUBLIC_API_URL` to the Space URL
+Deployed and live:
+
+- **Backend**: Render free tier via `render.yaml` Blueprint ([backend/Dockerfile](backend/Dockerfile), honors platform `$PORT`) → https://sentinel-api-hv1o.onrender.com
+- **Frontend**: Netlify (`netlify.toml`) with `NEXT_PUBLIC_API_URL` pointing at the Render URL → https://idbitrack4.netlify.app
 - Fully self-hosted alternative: `docker-compose up` on any VPS
-- See `docs/DEPLOYMENT.md`
+- Hugging Face Spaces config is also included (root `Dockerfile`, port 7860) — note HF's Docker SDK now requires a paid plan on new accounts
+- Full walkthrough: `docs/DEPLOYMENT.md`
 
 ## Compliance
 
@@ -120,4 +133,4 @@ docker-compose up --build
 
 ## Team
 
-Track 04 submission for IDBI Innovate 2026.
+**ax3nr1x** — Track 04 submission for IDBI Innovate 2026. Team leader: Syed Abbas Raza.
