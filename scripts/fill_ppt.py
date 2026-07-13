@@ -304,7 +304,7 @@ def fill_deck(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--team-name", default="Sentinel")
-    parser.add_argument("--leader", default="[EDIT: team leader name]")
+    parser.add_argument("--leader", default="Syed Abbas Raza")
     parser.add_argument("--github", default="https://github.com/abbas-sd17/sentinel-idbi")
     parser.add_argument("--demo-url", default="https://sentinel-idbi.netlify.app")
     parser.add_argument("--video-url", default="[EDIT: paste 3-minute demo video link]")
