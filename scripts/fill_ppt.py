@@ -306,7 +306,7 @@ if __name__ == "__main__":
     parser.add_argument("--team-name", default="ax3nr1x")
     parser.add_argument("--leader", default="Syed Abbas Raza")
     parser.add_argument("--github", default="https://github.com/abbas-sd17/sentinel-idbi")
-    parser.add_argument("--demo-url", default="https://sentinel-idbi.netlify.app")
+    parser.add_argument("--demo-url", default="https://idbitrack4.netlify.app")
     parser.add_argument("--video-url", default="https://youtu.be/DLrS6FQ7Jcs")
     args = parser.parse_args()
     fill_deck(args.team_name, args.leader, args.github, args.demo_url, args.video_url)
